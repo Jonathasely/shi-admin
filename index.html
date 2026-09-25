@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SHI Aroma Lab — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{height:100%;width:100%}
+body{background:#FAFAF8;font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#1A1A1A}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#D5D0CA;border-radius:3px}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit;font-size:14px;outline:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .3s ease}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect}=React;
+
+const C={bg:"#FAFAF8",white:"#FFF",alt:"#F7F5F2",border:"#E8E4DF",bk:"#1A1A1A",g1:"#444",g2:"#777",g3:"#AAA",g4:"#CCC",g5:"#E8E4DF",accent:"#2D6A4F",accentL:"#E8F5EE",red:"#C0392B",redL:"#FDECEC",blue:"#2C5F8A",blueL:"#EBF3FA",amber:"#B8860B",amberL:"#FFF8E7"};
+const serif="'Cormorant Garamond',serif";
+
+const ESSENCES=[
+{id:1,code:"SHI Nº 01",name:"Fresco Luminoso",desc:"Cítrico • Fresco • Leve",cat:"Cítrico",accords:{citrus:100,fresh:100,aromatic:70,green:70,"white floral":40,musky:15}},
+{id:2,code:"SHI Nº 02",name:"Chipre Moderno",desc:"Cítrico • Especiado • Amadeirado",cat:"Chipre",accords:{citrus:100,"fresh spicy":70,floral:70,woody:70,amber:40,musky:40}},
+{id:3,code:"SHI Nº 03",name:"Floral Clássico",desc:"Floral • Elegante • Atemporal",cat:"Floral",accords:{floral:100,powdery:70,"fresh spicy":70,woody:40,citrus:40}},
+{id:4,code:"SHI Nº 04",name:"Floral Radiante",desc:"Floral • Frutado • Luminoso",cat:"Floral",accords:{floral:100,fruity:70,sweet:70,musky:40,woody:15}},
+{id:5,code:"SHI Nº 05",name:"Floral Ambarado",desc:"Floral • Âmbar • Sensual",cat:"Oriental",accords:{floral:100,amber:70,musky:70,sweet:40,woody:40}},
+{id:6,code:"SHI Nº 06",name:"Doce Irresistível",desc:"Doce • Gourmand • Envolvente",cat:"Gourmand",accords:{sweet:100,gourmand:100,floral:70,fruity:70,powdery:40}},
+{id:7,code:"SHI Nº 07",name:"Floral Delicado",desc:"Floral • Doce • Romântico",cat:"Floral",accords:{floral:100,sweet:70,fruity:70,powdery:40,musky:40}},
+{id:8,code:"SHI Nº 08",name:"Floral Intenso",desc:"Floral • Amadeirado • Ousado",cat:"Floral",accords:{floral:100,woody:70,amber:70,citrus:40,musky:40}},
+{id:9,code:"SHI Nº 09",name:"Floral Romântico",desc:"Floral • Rosa • Sedutor",cat:"Floral",accords:{floral:100,sweet:70,fruity:70,musky:40,rose:40}},
+{id:10,code:"SHI Nº 10",name:"Floral Limpo",desc:"Floral • Fresco • Suave",cat:"Floral",accords:{floral:100,musky:70,fresh:70,woody:40,powdery:40}},
+{id:11,code:"SHI Nº 11",name:"Oriental Doce",desc:"Doce • Mel • Sedutor",cat:"Oriental",accords:{sweet:100,honey:100,floral:70,amber:40,woody:40}},
+{id:12,code:"SHI Nº 12",name:"Aquático Vibrante",desc:"Fresco • Cítrico • Verde",cat:"Cítrico",accords:{fresh:100,citrus:70,floral:70,green:40,fruity:40}},
+{id:13,code:"SHI Nº 13",name:"Frutal Festivo",desc:"Frutado • Festivo • Alegre",cat:"Frutado",accords:{floral:100,fruity:70,sweet:70,musky:40,amber:40}},
+{id:14,code:"SHI Nº 14",name:"Floral Fresco",desc:"Floral • Fresco • Natural",cat:"Floral",accords:{floral:100,fresh:70,citrus:70,woody:40,musky:40}},
+{id:15,code:"SHI Nº 15",name:"Ambarado Único",desc:"Âmbar • Exclusivo • Memorável",cat:"Oriental",accords:{amber:100,sweet:100,woody:70,"warm spicy":40,floral:15}},
+{id:16,code:"SHI Nº 16",name:"Doce Sensual",desc:"Doce • Cremoso • Envolvente",cat:"Gourmand",accords:{sweet:100,musky:70,floral:70,woody:40,amber:40}},
+{id:17,code:"SHI Nº 17",name:"Ambarado Clássico",desc:"Âmbar • Baunilha • Quente",cat:"Oriental",accords:{amber:100,sweet:100,vanilla:70,musky:40}},
+{id:18,code:"SHI Nº 18",name:"Baunilha Pura",desc:"Baunilha • Suave • Reconfortante",cat:"Gourmand",accords:{sweet:100,vanilla:100,musky:70,powdery:40}},
+{id:19,code:"SHI Nº 19",name:"Tropical Vibrante",desc:"Tropical • Alegre • Exótico",cat:"Frutado",accords:{fruity:100,sweet:100,tropical:70,musky:40}},
+{id:20,code:"SHI Nº 20",name:"Rosa Eterno",desc:"Rosa • Feminino • Atemporal",cat:"Floral",accords:{floral:100,rose:100,powdery:70,fresh:40,citrus:40}},
+{id:21,code:"SHI Nº 21",name:"Almíscar Branco",desc:"Almíscar • Clean • Elegante",cat:"Musk",accords:{musky:100,clean:70,powdery:70,floral:40}},
+{id:22,code:"SHI Nº 22",name:"Patchouli Moderno",desc:"Patchouli • Terroso • Profundo",cat:"Amadeirado",accords:{woody:100,earthy:70,amber:70,musky:40}},
+];
+
+const INGREDIENTS=[
+{id:1,name:"Patchouli",cat:"Amadeirado",desc:"Terroso, amadeirado e levemente adocicado",unit:"gotas"},
+{id:2,name:"Rosa",cat:"Floral",desc:"Floral clássico, romântico e elegante",unit:"gotas"},
+{id:3,name:"Vetiver",cat:"Amadeirado",desc:"Terroso, fumê e sofisticado",unit:"gotas"},
+{id:4,name:"Baunilha",cat:"Gourmand",desc:"Doce, quente e aconchegante",unit:"gotas"},
+{id:5,name:"Bergamota",cat:"Cítrico",desc:"Cítrico fresco e levemente floral",unit:"gotas"},
+{id:6,name:"Jasmim",cat:"Floral",desc:"Floral intenso, sensual e envolvente",unit:"gotas"},
+{id:7,name:"Sândalo",cat:"Amadeirado",desc:"Amadeirado cremoso e suave",unit:"gotas"},
+{id:8,name:"Lavanda",cat:"Aromático",desc:"Aromático, relaxante e herbal",unit:"gotas"},
+{id:9,name:"Almíscar",cat:"Musk",desc:"Clean, suave e elegante",unit:"gotas"},
+{id:10,name:"Cedro",cat:"Amadeirado",desc:"Amadeirado seco e masculino",unit:"gotas"},
+{id:11,name:"Ylang Ylang",cat:"Floral",desc:"Floral exótico, doce e cremoso",unit:"gotas"},
+{id:12,name:"Canela",cat:"Especiado",desc:"Quente, especiado e envolvente",unit:"gotas"},
+{id:13,name:"Âmbar",cat:"Oriental",desc:"Quente, resinoso e sensual",unit:"gotas"},
+{id:14,name:"Neroli",cat:"Cítrico",desc:"Floral cítrico, luminoso e fresco",unit:"gotas"},
+{id:15,name:"Tonka",cat:"Gourmand",desc:"Amendoado, doce e aveludado",unit:"gotas"},
+];
+
+const EVENTS=[
+{id:1,name:"Casamento Ana & Lucas",type:"Perfume",date:"25/08/2026",local:"Villa Jardins - Lago Sul",status:"ativo",password:"ANA2508",essences:[1,3,4,5,6,7,8,9,10,14,15,20],guests:24,capacity:120},
+{id:2,name:"Aniversário 30 anos — Mariana",type:"Perfume",date:"15/09/2026",local:"Casa Bela Vista",status:"agendado",password:"MARI1509",essences:[2,4,6,7,9,11,13,15,16,17,18,19],guests:0,capacity:80},
+{id:3,name:"Workshop Aroma Caseiro",type:"Aroma Caseiro",date:"05/10/2026",local:"Espaço SHI",status:"agendado",password:"WORK0510",essences:[1,3,5,8,10,12,14,17,19,20,21,22],guests:0,capacity:30},
+];
+
+const PARTICIPANTS=[
+{id:1,evtId:1,name:"Iza Garcia",email:"iza@email.com",wa:"(61) 99999-0001",perfumes:["Light Blue","J'adore","Coco Mademoiselle"],recEssence:"SHI Nº 01",chosenEssence:"SHI Nº 03",combination:{base:"SHI Nº 03",items:[{ing:"Patchouli",drops:10},{ing:"Rosa",drops:10},{ing:"Vetiver",drops:10}]},sent:true,sentAt:"25/08/2026 19:32"},
+{id:2,evtId:1,name:"Camila Rocha",email:"cam@email.com",wa:"(61) 99999-0002",perfumes:["Good Girl","Black Opium"],recEssence:"SHI Nº 06",chosenEssence:"SHI Nº 06",combination:{base:"SHI Nº 06",items:[{ing:"Baunilha",drops:15},{ing:"Tonka",drops:8},{ing:"Canela",drops:5}]},sent:true,sentAt:"25/08/2026 19:45"},
+{id:3,evtId:1,name:"Fernanda Lima",email:"fer@email.com",wa:"(61) 99999-0003",perfumes:["La Vie Est Belle","Flowerbomb","Si"],recEssence:"SHI Nº 06",chosenEssence:null,combination:null,sent:false},
+{id:4,evtId:1,name:"Juliana Santos",email:"ju@email.com",wa:"(61) 99999-0004",perfumes:["Delina"],recEssence:"SHI Nº 09",chosenEssence:"SHI Nº 09",combination:{base:"SHI Nº 09",items:[{ing:"Rosa",drops:12},{ing:"Jasmim",drops:8}]},sent:false},
+{id:5,evtId:1,name:"Beatriz Alves",email:"bia@email.com",wa:"(61) 99999-0005",perfumes:["Baccarat Rouge 540","Good Girl Blush","Paradoxe"],recEssence:"SHI Nº 15",chosenEssence:"SHI Nº 05",combination:{base:"SHI Nº 05",items:[{ing:"Âmbar",drops:12},{ing:"Jasmim",drops:10},{ing:"Sândalo",drops:8}]},sent:false},
+];
+
+function App(){
+const[page,setPage]=useState("dash");
+const[sub,setSub]=useState(null);
+const[selEvt,setSelEvt]=useState(null);
+const[selPart,setSelPart]=useState(null);
+const[selIng,setSelIng]=useState(null);
+const[selEss,setSelEss]=useState(null);
+const[sideOpen,setSideOpen]=useState(true);
+const[modal,setModal]=useState(null);
+const[toast,setToast]=useState(null);
+const[parts,setParts]=useState(PARTICIPANTS);
+const[combForm,setCombForm]=useState(null); // {partId, base, items:[{ing,drops}]}
+const updatePart=(id,updates)=>{setParts(prev=>prev.map(p=>p.id===id?{...p,...updates}:p));setSelPart(prev=>prev&&prev.id===id?{...prev,...updates}:prev)};
+
+const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(null),2500)};
+const nav=(p,s)=>{setPage(p);setSub(s||null);setSelEvt(null);setSelPart(null);setSelIng(null);setSelEss(null)};
+
+const S={
+card:{background:C.white,border:`1px solid ${C.border}`,padding:"20px 24px"},
+h1:{fontFamily:serif,fontSize:28,fontWeight:400,letterSpacing:1,color:C.bk},
+h2:{fontFamily:serif,fontSize:22,fontWeight:400,letterSpacing:.5,color:C.bk},
+h3:{fontSize:12,fontWeight:600,letterSpacing:2,textTransform:"uppercase",color:C.g2},
+pill:(color,bg)=>({display:"inline-block",padding:"3px 10px",fontSize:10,fontWeight:600,letterSpacing:1,textTransform:"uppercase",background:bg,color,borderRadius:2}),
+btn:{padding:"10px 20px",border:"none",background:C.bk,color:C.white,fontSize:11,fontWeight:600,letterSpacing:2,textTransform:"uppercase",borderRadius:0},
+btnS:{padding:"10px 20px",border:`1px solid ${C.border}`,background:"transparent",color:C.g1,fontSize:11,fontWeight:600,letterSpacing:2,textTransform:"uppercase",borderRadius:0},
+inp:{width:"100%",padding:"10px 12px",border:`1px solid ${C.border}`,background:C.white,borderRadius:0,fontSize:14},
+label:{fontSize:10,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",color:C.g2,marginBottom:4,display:"block"},
+table:{width:"100%",borderCollapse:"collapse"},
+th:{padding:"10px 12px",fontSize:10,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",color:C.g2,borderBottom:`2px solid ${C.border}`,textAlign:"left"},
+td:{padding:"12px",fontSize:13,borderBottom:`1px solid ${C.border}`,color:C.g1},
+};
+
+const menu=[
+{id:"dash",icon:"◇",label:"Dashboard"},
+{id:"events",icon:"◈",label:"Eventos"},
+{id:"essences",icon:"✦",label:"Essências"},
+{id:"ingredients",icon:"⬡",label:"Ingredientes"},
+{id:"participants",icon:"◉",label:"Participantes"},
+{id:"reports",icon:"▤",label:"Relatórios"},
+{id:"settings",icon:"⚙",label:"Configurações"},
+];
+
+const StatusPill=({s})=>{const m={ativo:[C.accent,C.accentL],agendado:[C.blue,C.blueL],encerrado:[C.g2,"#F0F0F0"]};const[c,bg]=m[s]||[C.g2,"#f0f0f0"];return<span style={S.pill(c,bg)}>{s}</span>};
+
+const evtParts=selEvt?parts.filter(p=>p.evtId===selEvt.id):[];
+
+/* ═══════ SIDEBAR ═══════ */
+const Sidebar=()=>(
+<div style={{width:sideOpen?220:60,background:C.bk,display:"flex",flexDirection:"column",transition:"width .25s",flexShrink:0,overflow:"hidden"}}>
+<div style={{padding:sideOpen?"24px 20px":"24px 12px",borderBottom:"1px solid rgba(255,255,255,.08)",display:"flex",alignItems:"center",gap:12}}>
+{sideOpen?<div><div style={{fontFamily:serif,fontSize:26,color:"#fff",letterSpacing:4}}>SHI</div><div style={{fontSize:8,color:"rgba(255,255,255,.4)",letterSpacing:3,textTransform:"uppercase"}}>Aroma Lab</div></div>:<div style={{fontFamily:serif,fontSize:22,color:"#fff",letterSpacing:2}}>S</div>}
+</div>
+<div style={{flex:1,padding:"8px 0"}}>
+{menu.map(m=>(
+<div key={m.id} onClick={()=>nav(m.id)} style={{display:"flex",alignItems:"center",gap:12,padding:sideOpen?"10px 20px":"10px 18px",cursor:"pointer",background:page===m.id?"rgba(255,255,255,.06)":"transparent",borderLeft:page===m.id?"2px solid #fff":"2px solid transparent",transition:"all .15s"}}>
+<span style={{fontSize:14,color:page===m.id?"#fff":"rgba(255,255,255,.35)",width:20,textAlign:"center"}}>{m.icon}</span>
+{sideOpen&&<span style={{fontSize:12,fontWeight:page===m.id?500:400,color:page===m.id?"#fff":"rgba(255,255,255,.5)",letterSpacing:.5}}>{m.label}</span>}
+</div>))}
+</div>
+<div onClick={()=>setSideOpen(!sideOpen)} style={{padding:16,textAlign:"center",cursor:"pointer",color:"rgba(255,255,255,.25)",fontSize:12,borderTop:"1px solid rgba(255,255,255,.06)"}}>{sideOpen?"◁":"▷"}</div>
+</div>);
+
+/* ═══════ HEADER ═══════ */
+const Header=({title,right})=>(
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+<h1 style={S.h1}>{title}</h1>
+{right}
+</div>);
+
+/* ═══════ STAT CARD ═══════ */
+const Stat=({label,value,sub})=>(
+<div style={{...S.card,flex:1,minWidth:160}}>
+<div style={S.h3}>{label}</div>
+<div style={{fontFamily:serif,fontSize:36,fontWeight:400,color:C.bk,marginTop:8}}>{value}</div>
+{sub&&<div style={{fontSize:11,color:C.g3,marginTop:4}}>{sub}</div>}
+</div>);
+
+/* ═══════ DASHBOARD ═══════ */
+const Dashboard=()=>(
+<div className="fade-in">
+<Header title="Dashboard"/>
+<div style={{display:"flex",gap:16,flexWrap:"wrap",marginBottom:24}}>
+<Stat label="Eventos ativos" value="1" sub="2 agendados"/>
+<Stat label="Participantes" value={parts.length} sub="Casamento Ana & Lucas"/>
+<Stat label="Essências" value={ESSENCES.length} sub="20 bases + 2 edição limitada"/>
+<Stat label="Ingredientes" value={INGREDIENTS.length} sub="Para combinações"/>
+</div>
+<div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+<div style={{...S.card,flex:2,minWidth:300}}>
+<div style={S.h3}>Próximos eventos</div>
+<div style={{marginTop:16}}>
+{EVENTS.map(e=>(
+<div key={e.id} onClick={()=>{setSelEvt(e);nav("events","detail")}} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 0",borderBottom:`1px solid ${C.border}`,cursor:"pointer"}}>
+<div><div style={{fontSize:14,fontWeight:500}}>{e.name}</div><div style={{fontSize:11,color:C.g2,marginTop:2}}>{e.date} • {e.local}</div></div>
+<StatusPill s={e.status}/>
+</div>))}
+</div>
+</div>
+<div style={{...S.card,flex:1,minWidth:250}}>
+<div style={S.h3}>Ação rápida</div>
+<div style={{marginTop:16,display:"flex",flexDirection:"column",gap:10}}>
+<button onClick={()=>nav("events")} style={S.btn}>+ Novo evento</button>
+<button onClick={()=>nav("essences")} style={S.btnS}>Gerenciar essências</button>
+<button onClick={()=>nav("ingredients")} style={S.btnS}>Gerenciar ingredientes</button>
+</div>
+</div>
+</div>
+</div>);
+
+/* ═══════ EVENTS LIST ═══════ */
+const EventsList=()=>(
+<div className="fade-in">
+<Header title="Eventos" right={<button style={S.btn} onClick={()=>showToast("Formulário de criação (em desenvolvimento)")}>+ Novo evento</button>}/>
+<div style={S.card}>
+<table style={S.table}>
+<thead><tr>{["Evento","Tipo","Data","Local","Status","Participantes"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
+<tbody>{EVENTS.map(e=>(
+<tr key={e.id} onClick={()=>{setSelEvt(e);setSub("detail")}} style={{cursor:"pointer"}}>
+<td style={{...S.td,fontWeight:500}}>{e.name}</td>
+<td style={S.td}>{e.type}</td>
+<td style={S.td}>{e.date}</td>
+<td style={S.td}>{e.local}</td>
+<td style={S.td}><StatusPill s={e.status}/></td>
+<td style={S.td}>{e.guests}/{e.capacity}</td>
+</tr>))}</tbody>
+</table>
+</div>
+</div>);
+
+/* ═══════ EVENT DETAIL ═══════ */
+const EventDetail=()=>{
+if(!selEvt)return<EventsList/>;
+const evtParts2=parts.filter(p=>p.evtId===selEvt.id);
+const evtEss=ESSENCES.filter(e=>selEvt.essences.includes(e.id));
+const sentCount=evtParts2.filter(p=>p.sent).length;
+return(
+<div className="fade-in">
+<div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
+<button onClick={()=>{setSub(null);setSelEvt(null)}} style={{...S.btnS,padding:"6px 14px",fontSize:10}}>← Voltar</button>
+<h1 style={S.h1}>{selEvt.name}</h1>
+<StatusPill s={selEvt.status}/>
+</div>
+<div style={{display:"flex",gap:16,flexWrap:"wrap",marginBottom:24}}>
+<Stat label="Tipo" value={selEvt.type}/>
+<Stat label="Data" value={selEvt.date}/>
+<Stat label="Local" value={selEvt.local}/>
+<Stat label="Senha" value={selEvt.password}/>
+</div>
+
+{/* Essences of this event */}
+<div style={{...S.card,marginBottom:16}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+<div style={S.h3}>Essências do evento ({evtEss.length}/12)</div>
+</div>
+<div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+{evtEss.map(e=>(
+<div key={e.id} style={{padding:"8px 14px",border:`1px solid ${C.border}`,background:C.alt,fontSize:12}}>
+<span style={{fontWeight:600}}>{e.code}</span>
+<span style={{color:C.g2,marginLeft:6}}>{e.name}</span>
+</div>))}
+</div>
+</div>
+
+{/* Participants */}
+<div style={{...S.card,marginBottom:16}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+<div style={S.h3}>Participantes ({evtParts2.length})</div>
+<div style={{display:"flex",gap:8}}>
+<button onClick={()=>{setModal("dispatch");showToast("Disparar mensagens pós-evento")}} style={{...S.btn,padding:"6px 14px",fontSize:10}}>Disparar mensagens</button>
+</div>
+</div>
+<table style={S.table}>
+<thead><tr>{["Nome","Perfumes","Essência recomendada","Essência escolhida","Combinação","Enviado"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
+<tbody>{evtParts2.map(p=>(
+<tr key={p.id} onClick={()=>{setSelPart(p);setSub("participant")}} style={{cursor:"pointer"}}>
+<td style={{...S.td,fontWeight:500}}>{p.name}</td>
+<td style={{...S.td,fontSize:11}}>{p.perfumes.join(", ")}</td>
+<td style={S.td}><span style={{fontWeight:500}}>{p.recEssence}</span></td>
+<td style={S.td}>{p.chosenEssence?<span style={{fontWeight:500,color:p.chosenEssence!==p.recEssence?C.amber:C.accent}}>{p.chosenEssence}{p.chosenEssence!==p.recEssence?" ✎":""}</span>:<span style={{color:C.g3,fontStyle:"italic"}}>Pendente</span>}</td>
+<td style={S.td}>{p.combination?<span style={S.pill(C.accent,C.accentL)}>Registrada</span>:<span style={S.pill(C.g2,"#f0f0f0")}>Pendente</span>}</td>
+<td style={S.td}>{p.sent?<span style={S.pill(C.accent,C.accentL)}>Sim</span>:<span style={S.pill(C.g2,"#f0f0f0")}>Não</span>}</td>
+</tr>))}</tbody>
+</table>
+<div style={{marginTop:12,fontSize:11,color:C.g2}}>
+Mensagens enviadas: {sentCount}/{evtParts2.length} •
+{evtParts2.filter(p=>p.chosenEssence&&p.chosenEssence!==p.recEssence).length>0&&<span style={{color:C.amber}}> {evtParts2.filter(p=>p.chosenEssence&&p.chosenEssence!==p.recEssence).length} ajuste(s) manual(is)</span>}
+</div>
+</div>
+</div>);};
+
+/* ═══════ PARTICIPANT DETAIL ═══════ */
+const ParticipantDetail=()=>{
+if(!selPart)return<EventDetail/>;
+const p=parts.find(x=>x.id===selPart.id)||selPart;
+const isEditing=combForm&&combForm.partId===p.id;
+const startCombForm=()=>{setCombForm({partId:p.id,base:p.chosenEssence||p.recEssence||"",items:[{ing:"",drops:10}]})};
+const addIngRow=()=>{setCombForm(prev=>({...prev,items:[...prev.items,{ing:"",drops:10}]}))};
+const removeIngRow=(idx)=>{setCombForm(prev=>({...prev,items:prev.items.filter((_,i)=>i!==idx)}))};
+const updIngRow=(idx,field,val)=>{setCombForm(prev=>({...prev,items:prev.items.map((it,i)=>i===idx?{...it,[field]:field==="drops"?parseInt(val)||0:val}:it)}))};
+const saveComb=()=>{if(!combForm.base||!combForm.items.filter(it=>it.ing).length){showToast("Selecione a base e pelo menos 1 ingrediente");return}const combo={base:combForm.base,items:combForm.items.filter(it=>it.ing)};updatePart(p.id,{combination:combo,chosenEssence:combForm.base});setCombForm(null);showToast("Combinação registrada com sucesso!")};
+return(
+<div className="fade-in">
+<div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
+<button onClick={()=>{setSelPart(null);setSub("detail");setCombForm(null)}} style={{...S.btnS,padding:"6px 14px",fontSize:10}}>← Voltar</button>
+<h1 style={S.h1}>{p.name}</h1>
+</div>
+<div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+{/* LEFT */}
+<div style={{flex:1,minWidth:320}}>
+<div style={{...S.card,marginBottom:16}}>
+<div style={S.h3}>Dados pessoais</div>
+<div style={{marginTop:12,display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+<div><div style={S.label}>E-mail</div><div style={{fontSize:13}}>{p.email}</div></div>
+<div><div style={S.label}>WhatsApp</div><div style={{fontSize:13}}>{p.wa}</div></div>
+</div>
+</div>
+<div style={{...S.card,marginBottom:16}}>
+<div style={S.h3}>Perfumes escolhidos</div>
+<div style={{marginTop:12,display:"flex",gap:8,flexWrap:"wrap"}}>
+{p.perfumes.map((pf,i)=><span key={i} style={{padding:"6px 14px",border:`1px solid ${C.border}`,background:C.alt,fontSize:12}}>{pf}</span>)}
+</div>
+</div>
+<div style={{...S.card,marginBottom:16}}>
+<div style={S.h3}>Resultado do algoritmo vs. Escolha real</div>
+<div style={{marginTop:12,display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+<div style={{padding:16,border:`1px solid ${C.border}`,background:C.alt,textAlign:"center"}}>
+<div style={{fontSize:9,letterSpacing:2,color:C.g3,textTransform:"uppercase",marginBottom:6}}>Recomendada (sistema)</div>
+<div style={{fontFamily:serif,fontSize:20,color:C.bk}}>{p.recEssence}</div>
+<div style={{fontSize:11,color:C.g2,marginTop:4}}>Cosine similarity</div>
+</div>
+<div style={{padding:16,border:`1px solid ${p.chosenEssence&&p.chosenEssence!==p.recEssence?C.amber:C.accent}`,background:p.chosenEssence?C.accentL:C.white,textAlign:"center"}}>
+<div style={{fontSize:9,letterSpacing:2,color:C.g3,textTransform:"uppercase",marginBottom:6}}>Escolhida (real)</div>
+{p.chosenEssence?<>
+<div style={{fontFamily:serif,fontSize:20,color:C.bk}}>{p.chosenEssence}</div>
+{p.chosenEssence!==p.recEssence&&<div style={{fontSize:10,color:C.amber,marginTop:4}}>Ajustado manualmente</div>}
+<button onClick={()=>updatePart(p.id,{chosenEssence:null})} style={{marginTop:8,border:"none",background:"transparent",color:C.g3,fontSize:10,textDecoration:"underline",cursor:"pointer"}}>Alterar</button>
+</>:<>
+<select onChange={e=>{if(e.target.value){updatePart(p.id,{chosenEssence:e.target.value});showToast("Essência escolhida salva!")}}} style={{...S.inp,textAlign:"center",fontSize:13,padding:8,marginTop:4}}>
+<option value="">Selecionar essência...</option>
+{ESSENCES.slice(0,20).map(e=><option key={e.id} value={e.code}>{e.code} — {e.name}</option>)}
+</select>
+</>}
+</div>
+</div>
+</div>
+</div>
+
+{/* RIGHT */}
+<div style={{flex:1,minWidth:320}}>
+<div style={{...S.card,marginBottom:16}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+<div style={S.h3}>Combinação personalizada</div>
+{!p.combination&&!isEditing&&<button onClick={startCombForm} style={{...S.btn,padding:"6px 14px",fontSize:10}}>+ Registrar</button>}
+</div>
+
+{/* ---- COMBINATION FORM ---- */}
+{isEditing&&!p.combination&&<div style={{marginTop:16,animation:"fadeIn .3s ease"}}>
+<div style={{marginBottom:14}}>
+<div style={S.label}>Base SHI</div>
+<select value={combForm.base} onChange={e=>setCombForm(prev=>({...prev,base:e.target.value}))} style={S.inp}>
+<option value="">Selecionar base...</option>
+{ESSENCES.slice(0,20).map(e=><option key={e.id} value={e.code}>{e.code} — {e.name}</option>)}
+</select>
+</div>
+<div style={{marginBottom:8}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+<div style={S.label}>Ingredientes</div>
+<button onClick={addIngRow} style={{border:"none",background:"transparent",color:C.accent,fontSize:11,fontWeight:600,cursor:"pointer"}}>+ Adicionar</button>
+</div>
+</div>
+{combForm.items.map((it,i)=>(
+<div key={i} style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
+<select value={it.ing} onChange={e=>updIngRow(i,"ing",e.target.value)} style={{...S.inp,flex:2}}>
+<option value="">Ingrediente...</option>
+{INGREDIENTS.map(ig=><option key={ig.id} value={ig.name}>{ig.name} ({ig.cat})</option>)}
+</select>
+<input type="number" min="1" max="30" value={it.drops} onChange={e=>updIngRow(i,"drops",e.target.value)} style={{...S.inp,flex:0,width:70,textAlign:"center"}}/>
+<span style={{fontSize:11,color:C.g2,whiteSpace:"nowrap"}}>gotas</span>
+{combForm.items.length>1&&<button onClick={()=>removeIngRow(i)} style={{border:"none",background:"transparent",color:C.red,fontSize:14,cursor:"pointer",padding:4}}>✕</button>}
+</div>))}
+{combForm.base&&combForm.items.filter(it=>it.ing).length>0&&<div style={{marginTop:12,padding:12,background:C.alt,border:`1px solid ${C.border}`,fontSize:12,color:C.g1,lineHeight:1.8}}>
+<div style={{fontSize:10,fontWeight:600,color:C.g2,letterSpacing:1,marginBottom:4}}>PRÉ-VISUALIZAÇÃO</div>
+· 7 ml de base {combForm.base}<br/>
+{combForm.items.filter(it=>it.ing).map((it,i)=><span key={i}>· {it.drops} gotas de {it.ing.toLowerCase()}<br/></span>)}
+</div>}
+<div style={{display:"flex",gap:8,marginTop:14}}>
+<button onClick={saveComb} style={{...S.btn,flex:1}}>Salvar combinação</button>
+<button onClick={()=>setCombForm(null)} style={{...S.btnS,flex:0}}>Cancelar</button>
+</div>
+</div>}
+
+{p.combination?<div style={{marginTop:16}}>
+<div style={{padding:16,border:`1px solid ${C.border}`,background:C.alt,marginBottom:12}}>
+<div style={{fontSize:9,letterSpacing:2,color:C.g3,textTransform:"uppercase",marginBottom:8}}>Base</div>
+<div style={{fontFamily:serif,fontSize:22,color:C.bk,letterSpacing:1}}>{p.combination.base}</div>
+<div style={{fontSize:11,color:C.g2,marginTop:2}}>7 ml</div>
+</div>
+<div style={{fontSize:9,letterSpacing:2,color:C.g3,textTransform:"uppercase",marginBottom:8}}>Ingredientes adicionados</div>
+{p.combination.items.map((it,i)=>(
+<div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 12px",borderBottom:`1px solid ${C.border}`}}>
+<div style={{fontSize:13,fontWeight:500}}>{it.ing}</div>
+<div style={{fontSize:13,color:C.g1}}>{it.drops} gotas</div>
+</div>))}
+<div style={{marginTop:12,padding:12,background:C.accentL,border:`1px solid ${C.accent}30`}}>
+<div style={{fontSize:11,fontWeight:600,color:C.accent}}>Fórmula completa</div>
+<div style={{fontSize:12,color:C.g1,marginTop:4,lineHeight:1.8}}>
+· 7 ml de base {p.combination.base}<br/>
+{p.combination.items.map((it,i)=><span key={i}>· {it.drops} gotas de {it.ing.toLowerCase()}<br/></span>)}
+</div>
+</div>
+<button onClick={()=>{updatePart(p.id,{combination:null});showToast("Combinação removida")}} style={{marginTop:12,border:"none",background:"transparent",color:C.g3,fontSize:10,textDecoration:"underline",cursor:"pointer"}}>Remover e refazer</button>
+</div>:(!isEditing&&<div style={{marginTop:16,padding:24,border:`1px dashed ${C.g4}`,textAlign:"center",color:C.g3,fontSize:12}}>
+Nenhuma combinação registrada ainda.<br/>Clique em "+ Registrar" acima.
+</div>)}
+</div>
+
+<div style={{...S.card}}>
+<div style={S.h3}>Envio pós-evento</div>
+<div style={{marginTop:12}}>
+{p.sent?<div>
+<div style={S.pill(C.accent,C.accentL)}>Mensagem enviada</div>
+<div style={{fontSize:11,color:C.g2,marginTop:8}}>Enviado em: {p.sentAt}</div>
+<div style={{marginTop:12,padding:12,background:C.alt,border:`1px solid ${C.border}`,fontSize:12,lineHeight:1.8,color:C.g1}}>
+Olá, {p.name}! ✨<br/>
+Obrigada por criar seu perfume com a SHI Aroma Lab no evento Casamento Ana & Lucas.<br/><br/>
+Esta é a fórmula da fragrância criada por você:<br/>
+{p.combination&&<>
+· 7 ml de base {p.combination.base}<br/>
+{p.combination.items.map((it,i)=><span key={i}>· {it.drops} gotas de {it.ing.toLowerCase()}<br/></span>)}
+</>}
+<br/>Guarde com carinho!<br/>SHI Aroma Lab
+</div>
+</div>:<div style={{display:"flex",gap:8}}>
+<button style={{...S.btn,flex:1,padding:"10px 16px",fontSize:10}} onClick={()=>showToast("Mensagem enviada via WhatsApp!")}>WhatsApp</button>
+<button style={{...S.btnS,flex:1,padding:"10px 16px",fontSize:10}} onClick={()=>showToast("E-mail enviado!")}>E-mail</button>
+</div>}
+</div>
+</div>
+</div>
+</div>
+</div>);};
+
+/* ═══════ ESSENCES ═══════ */
+const EssencesList=()=>(
+<div className="fade-in">
+<Header title="Essências" right={<button style={S.btn} onClick={()=>showToast("Formulário de criação (em desenvolvimento)")}>+ Nova essência</button>}/>
+<div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+{["Todas","Floral","Cítrico","Oriental","Gourmand","Frutado","Amadeirado","Musk"].map(c=>(
+<button key={c} style={{padding:"6px 14px",border:`1px solid ${C.border}`,background:c==="Todas"?C.bk:"transparent",color:c==="Todas"?C.white:C.g2,fontSize:10,fontWeight:500,letterSpacing:1,borderRadius:0}}>{c}</button>))}
+</div>
+<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+{ESSENCES.map(e=>(
+<div key={e.id} onClick={()=>{setSelEss(e);setSub("essDetail")}} style={{...S.card,cursor:"pointer",display:"flex",gap:14,alignItems:"center"}}>
+<div style={{width:52,height:52,background:C.alt,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+<span style={{fontFamily:serif,fontSize:16,color:C.g2}}>{String(e.id).padStart(2,'0')}</span>
+</div>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:13,fontWeight:600}}>{e.code}</div>
+<div style={{fontSize:12,color:C.g1,marginTop:1}}>{e.name}</div>
+<div style={{fontSize:10,color:C.g3,marginTop:2}}>{e.desc}</div>
+</div>
+<div style={S.pill(C.g2,"#f0f0f0")}>{e.cat}</div>
+</div>))}
+</div>
+</div>);
+
+const EssenceDetail=()=>{
+if(!selEss)return<EssencesList/>;
+const e=selEss;
+const accEntries=Object.entries(e.accords).sort((a,b)=>b[1]-a[1]);
+const maxVal=accEntries[0]?accEntries[0][1]:100;
+return(
+<div className="fade-in">
+<div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24}}>
+<button onClick={()=>{setSelEss(null);setSub(null)}} style={{...S.btnS,padding:"6px 14px",fontSize:10}}>← Voltar</button>
+<h1 style={S.h1}>{e.code} — {e.name}</h1>
+</div>
+<div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+<div style={{...S.card,flex:1,minWidth:300}}>
+<div style={S.h3}>Informações</div>
+<div style={{marginTop:12}}>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+<div><div style={S.label}>Código</div><div style={{fontSize:14,fontWeight:500}}>{e.code}</div></div>
+<div><div style={S.label}>Categoria</div><div style={{fontSize:14}}>{e.cat}</div></div>
+<div style={{gridColumn:"span 2"}}><div style={S.label}>Descrição</div><div style={{fontSize:14}}>{e.desc}</div></div>
+</div>
+</div>
+</div>
+<div style={{...S.card,flex:1,minWidth:300}}>
+<div style={S.h3}>Acordes</div>
+<div style={{marginTop:12}}>
+{accEntries.map(([k,v])=>(
+<div key={k} style={{marginBottom:10}}>
+<div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+<span style={{fontSize:11,fontWeight:500,textTransform:"capitalize"}}>{k}</span>
+<span style={{fontSize:10,color:C.g3}}>{v}</span>
+</div>
+<div style={{height:6,background:C.alt,borderRadius:3}}>
+<div style={{height:6,background:C.bk,borderRadius:3,width:`${(v/maxVal)*100}%`,transition:"width .4s"}}/>
+</div>
+</div>))}
+</div>
+</div>
+</div>
+</div>);};
+
+/* ═══════ INGREDIENTS ═══════ */
+const IngredientsList=()=>(
+<div className="fade-in">
+<Header title="Ingredientes" right={<button style={S.btn} onClick={()=>showToast("Formulário de criação (em desenvolvimento)")}>+ Novo ingrediente</button>}/>
+<div style={{...S.card}}>
+<table style={S.table}>
+<thead><tr>{["#","Nome","Categoria","Descrição","Unidade","Ações"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
+<tbody>{INGREDIENTS.map(ig=>(
+<tr key={ig.id}>
+<td style={S.td}>{ig.id}</td>
+<td style={{...S.td,fontWeight:500}}>{ig.name}</td>
+<td style={S.td}><span style={S.pill(C.g2,"#f0f0f0")}>{ig.cat}</span></td>
+<td style={{...S.td,color:C.g2,fontSize:12}}>{ig.desc}</td>
+<td style={S.td}>{ig.unit}</td>
+<td style={S.td}><button style={{...S.btnS,padding:"4px 10px",fontSize:9}} onClick={()=>showToast("Editar ingrediente")}>Editar</button></td>
+</tr>))}</tbody>
+</table>
+</div>
+<div style={{marginTop:16,padding:16,background:C.amberL,border:`1px solid ${C.amber}30`,fontSize:12,color:C.g1,lineHeight:1.6}}>
+<strong>Ingredientes fictícios.</strong> Na versão final, a lista será carregada do cadastro real de ingredientes disponíveis para combinações personalizadas.
+</div>
+</div>);
+
+/* ═══════ PARTICIPANTS ═══════ */
+const ParticipantsList=()=>(
+<div className="fade-in">
+<Header title="Participantes"/>
+<div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+{EVENTS.map(e=><button key={e.id} style={{padding:"6px 14px",border:`1px solid ${C.border}`,background:"transparent",color:C.g2,fontSize:10,fontWeight:500,letterSpacing:1,borderRadius:0}} onClick={()=>{setSelEvt(e);nav("events","detail")}}>{e.name}</button>)}
+</div>
+<div style={S.card}>
+<table style={S.table}>
+<thead><tr>{["Nome","Evento","Perfumes","Recomendada","Escolhida","Combinação","Enviado"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
+<tbody>{PARTICIPANTS.map(p=>{
+const evt=EVENTS.find(e=>e.id===p.evtId);
+return(
+<tr key={p.id} onClick={()=>{setSelEvt(evt);setSelPart(p);nav("events","participant")}} style={{cursor:"pointer"}}>
+<td style={{...S.td,fontWeight:500}}>{p.name}</td>
+<td style={{...S.td,fontSize:11}}>{evt?evt.name:"-"}</td>
+<td style={{...S.td,fontSize:11}}>{p.perfumes.join(", ")}</td>
+<td style={S.td}>{p.recEssence}</td>
+<td style={S.td}>{p.chosenEssence?<span style={{color:p.chosenEssence!==p.recEssence?C.amber:C.accent,fontWeight:500}}>{p.chosenEssence}</span>:<span style={{color:C.g3}}>—</span>}</td>
+<td style={S.td}>{p.combination?<span style={S.pill(C.accent,C.accentL)}>Sim</span>:<span style={S.pill(C.g2,"#f0f0f0")}>Não</span>}</td>
+<td style={S.td}>{p.sent?<span style={S.pill(C.accent,C.accentL)}>Sim</span>:<span style={S.pill(C.g2,"#f0f0f0")}>Não</span>}</td>
+</tr>)})}</tbody>
+</table>
+</div>
+</div>);
+
+/* ═══════ REPORTS ═══════ */
+const Reports=()=>{
+const essCount={};
+PARTICIPANTS.forEach(p=>{const e=p.chosenEssence||p.recEssence;essCount[e]=(essCount[e]||0)+1});
+const sorted=Object.entries(essCount).sort((a,b)=>b[1]-a[1]);
+const maxC=sorted[0]?sorted[0][1]:1;
+return(
+<div className="fade-in">
+<Header title="Relatórios"/>
+<div style={{display:"flex",gap:16,flexWrap:"wrap",marginBottom:24}}>
+<Stat label="Total participantes" value={PARTICIPANTS.length}/>
+<Stat label="Combinações registradas" value={PARTICIPANTS.filter(p=>p.combination).length}/>
+<Stat label="Mensagens enviadas" value={PARTICIPANTS.filter(p=>p.sent).length}/>
+<Stat label="Ajustes manuais" value={PARTICIPANTS.filter(p=>p.chosenEssence&&p.chosenEssence!==p.recEssence).length}/>
+</div>
+<div style={{...S.card,marginBottom:16}}>
+<div style={S.h3}>Essências mais escolhidas</div>
+<div style={{marginTop:20}}>
+{sorted.map(([ess,count])=>(
+<div key={ess} style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
+<div style={{width:80,fontSize:12,fontWeight:500,flexShrink:0}}>{ess}</div>
+<div style={{flex:1,height:24,background:C.alt,position:"relative"}}>
+<div style={{height:24,background:C.bk,width:`${(count/maxC)*100}%`,display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:8,transition:"width .5s"}}>
+<span style={{color:C.white,fontSize:10,fontWeight:600}}>{count}</span>
+</div>
+</div>
+</div>))}
+</div>
+</div>
+<div style={{...S.card}}>
+<div style={S.h3}>Taxa de ajuste manual</div>
+<div style={{marginTop:12,fontSize:13,color:C.g1,lineHeight:1.8}}>
+{(()=>{
+const total=PARTICIPANTS.filter(p=>p.chosenEssence).length;
+const adjusted=PARTICIPANTS.filter(p=>p.chosenEssence&&p.chosenEssence!==p.recEssence).length;
+const rate=total?Math.round((adjusted/total)*100):0;
+return<>
+<div style={{fontSize:28,fontFamily:serif,marginBottom:8}}>{rate}%</div>
+<div>dos participantes tiveram a essência ajustada manualmente após a experiência presencial.</div>
+<div style={{marginTop:8,fontSize:11,color:C.g2}}>{adjusted} de {total} participantes com essência definida.</div>
+</>;
+})()}
+</div>
+</div>
+</div>);};
+
+/* ═══════ SETTINGS ═══════ */
+const Settings=()=>(
+<div className="fade-in">
+<Header title="Configurações"/>
+<div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+<div style={{...S.card,flex:1,minWidth:300}}>
+<div style={S.h3}>Fragella API</div>
+<div style={{marginTop:16,display:"flex",flexDirection:"column",gap:12}}>
+<div><div style={S.label}>API Key</div><input type="password" style={S.inp} defaultValue="frag_xxxxxxxxxxxx"/></div>
+<div><div style={S.label}>Base URL</div><input style={S.inp} defaultValue="https://api.fragella.com/v1"/></div>
+<div><div style={S.label}>Status</div><div style={S.pill(C.accent,C.accentL)}>Conectado</div></div>
+<button style={S.btn}>Salvar</button>
+</div>
+</div>
+<div style={{...S.card,flex:1,minWidth:300}}>
+<div style={S.h3}>Automação pós-evento</div>
+<div style={{marginTop:16,display:"flex",flexDirection:"column",gap:12}}>
+<div><div style={S.label}>Template WhatsApp</div>
+<textarea style={{...S.inp,height:120,resize:"vertical"}} defaultValue={"Olá, [nome]! ✨\nObrigada por criar seu perfume com a SHI Aroma Lab no evento [evento].\n\nEsta é a fórmula da fragrância criada por você:\n[formula]\n\nGuarde com carinho!\nSHI Aroma Lab"}/></div>
+<div><div style={S.label}>Template E-mail</div>
+<textarea style={{...S.inp,height:80,resize:"vertical"}} defaultValue={"Assunto: Sua fórmula SHI — [evento]\nCorpo: mesmo template do WhatsApp"}/></div>
+<button style={S.btn}>Salvar templates</button>
+</div>
+</div>
+</div>
+</div>);
+
+/* ═══════ DISPATCH MODAL ═══════ */
+const DispatchModal=()=>{
+if(modal!=="dispatch"||!selEvt)return null;
+const parts=PARTICIPANTS.filter(p=>p.evtId===selEvt.id);
+const ready=parts.filter(p=>p.combination&&!p.sent);
+const alreadySent=parts.filter(p=>p.sent);
+return(
+<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000}} onClick={()=>setModal(null)}>
+<div onClick={e=>e.stopPropagation()} style={{background:C.white,padding:32,maxWidth:500,width:"90%",maxHeight:"80vh",overflow:"auto"}}>
+<h2 style={S.h2}>Disparar mensagens pós-evento</h2>
+<div style={{fontSize:12,color:C.g2,marginTop:8,marginBottom:20}}>Enviar fórmula personalizada para os participantes do evento <strong>{selEvt.name}</strong></div>
+<div style={{marginBottom:16}}>
+<div style={S.label}>Canal</div>
+<div style={{display:"flex",gap:8}}>
+<button style={{...S.btn,flex:1}}>WhatsApp</button>
+<button style={{...S.btnS,flex:1}}>E-mail</button>
+<button style={{...S.btnS,flex:1}}>Ambos</button>
+</div>
+</div>
+<div style={{marginBottom:16}}>
+<div style={S.label}>Prontos para envio ({ready.length})</div>
+{ready.length?ready.map(p=>(
+<div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:`1px solid ${C.border}`,fontSize:12}}>
+<span>{p.name}</span>
+<span style={{color:C.g3}}>{p.combination.base} + {p.combination.items.length} ingredientes</span>
+</div>)):<div style={{padding:12,background:C.amberL,fontSize:12,color:C.amber}}>Nenhum participante com combinação registrada e pendente de envio.</div>}
+</div>
+{alreadySent.length>0&&<div style={{marginBottom:16}}>
+<div style={S.label}>Já enviados ({alreadySent.length})</div>
+{alreadySent.map(p=><div key={p.id} style={{fontSize:12,color:C.g3,padding:"4px 0"}}>{p.name} — {p.sentAt}</div>)}
+</div>}
+<div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:20}}>
+<button style={S.btnS} onClick={()=>setModal(null)}>Cancelar</button>
+<button style={S.btn} onClick={()=>{setModal(null);showToast(`${ready.length} mensagens enviadas com sucesso!`)}}>Enviar para {ready.length} participantes</button>
+</div>
+</div>
+</div>);};
+
+/* ═══════ RENDER ═══════ */
+const content=()=>{
+if(page==="dash")return<Dashboard/>;
+if(page==="events"){
+if(sub==="participant")return<ParticipantDetail/>;
+if(sub==="detail")return<EventDetail/>;
+if(sub==="essDetail")return<EssenceDetail/>;
+return<EventsList/>;
+}
+if(page==="essences"){
+if(sub==="essDetail")return<EssenceDetail/>;
+return<EssencesList/>;
+}
+if(page==="ingredients")return<IngredientsList/>;
+if(page==="participants")return<ParticipantsList/>;
+if(page==="reports")return<Reports/>;
+if(page==="settings")return<Settings/>;
+return<Dashboard/>;
+};
+
+return(
+<div style={{display:"flex",height:"100vh",overflow:"hidden"}}>
+<Sidebar/>
+<div style={{flex:1,overflow:"auto",padding:32}}>
+{content()}
+</div>
+<DispatchModal/>
+{toast&&<div style={{position:"fixed",bottom:24,right:24,background:C.bk,color:C.white,padding:"12px 20px",fontSize:12,fontWeight:500,letterSpacing:.5,zIndex:2000,animation:"fadeIn .2s ease",boxShadow:"0 8px 30px rgba(0,0,0,.15)"}}>{toast}</div>}
+</div>);
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

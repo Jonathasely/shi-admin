@@ -1,0 +1,124 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-background: #FAFAF8;
+  --color-foreground: #1A1A1A;
+  --color-muted: #888888;
+  --color-border: #E8E4DF;
+  --color-card: #FFFFFF;
+  --color-alt: #F4F1ED;
+  --color-accent: #1A1A1A;
+  --color-success: #27AE60;
+  --color-warning: #F39C12;
+  --color-danger: #C0392B;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: #F4F1ED;
+  color: #1A1A1A;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #E8E4DF; border-radius: 2px; }
+
+/* Table styles */
+table { border-collapse: collapse; width: 100%; }
+th { text-align: left; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; padding: 12px 16px; border-bottom: 1px solid #E8E4DF; }
+td { padding: 14px 16px; border-bottom: 1px solid #F4F1ED; font-size: 14px; }
+tr:hover td { background: #FAFAF8; }
+
+/* Form inputs */
+.input-admin {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #E8E4DF;
+  background: white;
+  color: #1A1A1A;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.input-admin:focus {
+  outline: none;
+  border-color: #1A1A1A;
+}
+.input-admin::placeholder {
+  color: #CCC;
+}
+
+/* Buttons */
+.btn-primary {
+  padding: 10px 20px;
+  background: #1A1A1A;
+  color: white;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: #333; }
+
+.btn-secondary {
+  padding: 10px 20px;
+  background: transparent;
+  color: #1A1A1A;
+  border: 1px solid #E8E4DF;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: #1A1A1A; }
+
+.btn-danger {
+  padding: 10px 20px;
+  background: #C0392B;
+  color: white;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.btn-danger:hover { background: #A93226; }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.badge-success { background: #E8F5E9; color: #27AE60; }
+.badge-warning { background: #FFF3E0; color: #F39C12; }
+.badge-danger { background: #FFEBEE; color: #C0392B; }
+.badge-info { background: #F4F1ED; color: #888; }
