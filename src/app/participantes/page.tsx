@@ -7,7 +7,9 @@ import { supabase } from "@/lib/supabase";
 interface Participant {
   id: string;
   name: string;
+  surname: string | null;
   email: string | null;
+  phone: string | null;
   passport_code: string | null;
   result_profile_name: string | null;
   result_base_id: string | null;
@@ -34,26 +36,48 @@ export default function ParticipantesPage() {
     <AdminLayout>
       <div className="mb-8">
         <h1 className="font-serif text-3xl text-dark mb-1">Participantes</h1>
-        <p className="text-g2 text-sm">{participants.length} participantes registrados</p>
+        <p className="text-g2 text-sm">
+          {participants.length} participante{participants.length !== 1 ? "s" : ""}{" "}
+          registrado{participants.length !== 1 ? "s" : ""}
+        </p>
       </div>
 
-      <div className="bg-bg-card rounded-xl border border-g5 overflow-hidden">
-        <table className="w-full">
+      <div className="bg-bg-card rounded-xl border border-g5 overflow-x-auto">
+        <table className="w-full min-w-[700px]">
           <thead>
             <tr className="border-b border-g5">
-              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">Nome</th>
-              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">Evento</th>
-              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">Perfil</th>
-              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">Código</th>
-              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">Data</th>
+              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">
+                Nome
+              </th>
+              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">
+                Telefone
+              </th>
+              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">
+                Evento
+              </th>
+              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">
+                Perfil
+              </th>
+              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">
+                Código
+              </th>
+              <th className="text-left px-5 py-3 text-xs text-g2 uppercase tracking-wider font-medium">
+                Data
+              </th>
             </tr>
           </thead>
           <tbody>
             {participants.map((p) => (
               <tr key={p.id} className="border-b border-g5 last:border-0">
                 <td className="px-5 py-3">
-                  <p className="text-sm text-dark">{p.name}</p>
+                  <p className="text-sm text-dark">
+                    {p.name}
+                    {p.surname ? ` ${p.surname}` : ""}
+                  </p>
                   {p.email && <p className="text-xs text-g3">{p.email}</p>}
+                </td>
+                <td className="px-5 py-3 text-sm text-g2">
+                  {p.phone || "—"}
                 </td>
                 <td className="px-5 py-3 text-sm text-g2">
                   {p.events?.name || "—"}
@@ -72,7 +96,10 @@ export default function ParticipantesPage() {
 
             {participants.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center py-12 text-g3 text-sm">
+                <td
+                  colSpan={6}
+                  className="text-center py-12 text-g3 text-sm"
+                >
                   Nenhum participante ainda
                 </td>
               </tr>
