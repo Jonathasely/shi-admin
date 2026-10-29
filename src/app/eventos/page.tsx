@@ -26,6 +26,8 @@ interface Event {
   client_email: string | null;
   location: string | null;
   selected_bases: string[];
+  welcome_line1: string | null;
+  welcome_line2: string | null;
   created_at: string;
 }
 
@@ -41,6 +43,8 @@ const EMPTY_FORM = {
   client_email: "",
   location: "",
   selected_bases: [] as string[],
+  welcome_line1: "",
+  welcome_line2: "",
 };
 
 export default function EventosPage() {
@@ -114,6 +118,8 @@ export default function EventosPage() {
       client_email: form.client_email || null,
       location: form.location || null,
       selected_bases: form.selected_bases,
+      welcome_line1: form.welcome_line1 || null,
+      welcome_line2: form.welcome_line2 || null,
       status: "active",
     };
 
@@ -147,6 +153,8 @@ export default function EventosPage() {
       client_email: event.client_email || "",
       location: event.location || "",
       selected_bases: event.selected_bases || [],
+      welcome_line1: event.welcome_line1 || "",
+      welcome_line2: event.welcome_line2 || "",
     });
     setEditingId(event.id);
     setShowForm(true);
@@ -284,6 +292,44 @@ export default function EventosPage() {
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
                 placeholder="Ex: Espaço Villa Real, São Paulo"
+                className="w-full px-4 py-2.5 rounded-lg bg-bg border border-g5 text-dark text-sm focus:outline-none focus:border-g3"
+              />
+            </div>
+          </div>
+
+          {/* Welcome screen texts */}
+          <p className="text-xs text-g3 uppercase tracking-wider mb-1 mt-6">
+            Textos da tela de boas-vindas
+          </p>
+          <p className="text-xs text-g2 mb-3">
+            Personalize os textos exibidos na tela inicial do app. Deixe em branco para usar o padrão.
+          </p>
+          <div className="grid grid-cols-1 gap-4 mb-6">
+            <div>
+              <label className="text-xs text-g2 uppercase tracking-wider block mb-1">
+                Linha 1 — Subtítulo
+              </label>
+              <input
+                type="text"
+                value={form.welcome_line1}
+                onChange={(e) =>
+                  setForm({ ...form, welcome_line1: e.target.value })
+                }
+                placeholder="EXPERIÊNCIA OLFATIVA GUIADA POR INTELIGÊNCIA ARTIFICIAL"
+                className="w-full px-4 py-2.5 rounded-lg bg-bg border border-g5 text-dark text-sm focus:outline-none focus:border-g3"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-g2 uppercase tracking-wider block mb-1">
+                Linha 2 — Chamada principal
+              </label>
+              <input
+                type="text"
+                value={form.welcome_line2}
+                onChange={(e) =>
+                  setForm({ ...form, welcome_line2: e.target.value })
+                }
+                placeholder="DESCUBRA QUAL FRAGRÂNCIA SHI COMBINA COM VOCÊ!"
                 className="w-full px-4 py-2.5 rounded-lg bg-bg border border-g5 text-dark text-sm focus:outline-none focus:border-g3"
               />
             </div>
