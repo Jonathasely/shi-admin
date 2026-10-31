@@ -312,6 +312,8 @@ export default function ParticipantesPage() {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -413,6 +415,46 @@ export default function ParticipantesPage() {
     URL.revokeObjectURL(url);
   }
 
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((p) => p.id)));
+    }
+  }
+
+  async function deleteSelected() {
+    if (selected.size === 0) return;
+    const confirmed = window.confirm(
+      `Tem certeza que deseja excluir ${selected.size} participante${selected.size > 1 ? "s" : ""}? Esta ação não pode ser desfeita.`
+    );
+    if (!confirmed) return;
+    setDeleting(true);
+    const ids = Array.from(selected);
+    const { error } = await supabase.from("participants").delete().in("id", ids);
+    if (!error) {
+      setSelected(new Set());
+      await loadAll();
+    }
+    setDeleting(false);
+  }
+
+  async function deleteOne(id: string) {
+    const confirmed = window.confirm("Excluir este participante? Esta ação não pode ser desfeita.");
+    if (!confirmed) return;
+    await supabase.from("participants").delete().eq("id", id);
+    await loadAll();
+  }
+
   return (
     <AdminLayout>
       <div className="mb-6">
@@ -447,6 +489,15 @@ export default function ParticipantesPage() {
         />
 
         <div className="flex gap-2 ml-auto">
+          {selected.size > 0 && (
+            <button
+              onClick={deleteSelected}
+              disabled={deleting}
+              className="px-4 py-2 text-xs uppercase tracking-wider bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+            >
+              {deleting ? "Excluindo..." : `Excluir ${selected.size} selecionado${selected.size > 1 ? "s" : ""}`}
+            </button>
+          )}
           <button
             onClick={exportXLSX}
             disabled={filtered.length === 0}
@@ -469,6 +520,14 @@ export default function ParticipantesPage() {
         <table className="w-full min-w-[900px]">
           <thead>
             <tr className="border-b border-g5">
+              <th className="px-3 py-3 w-10">
+                <input
+                  type="checkbox"
+                  checked={filtered.length > 0 && selected.size === filtered.length}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 accent-[#2D2B29]"
+                />
+              </th>
               {["Nome", "Telefone", "Evento", "Perfil", "Código", "Toppers", "Data", ""].map(
                 (h) => (
                   <th
@@ -484,13 +543,13 @@ export default function ParticipantesPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-12 text-g3 text-sm">
+                <td colSpan={9} className="text-center py-12 text-g3 text-sm">
                   Carregando...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-12 text-g3 text-sm">
+                <td colSpan={9} className="text-center py-12 text-g3 text-sm">
                   Nenhum participante encontrado
                 </td>
               </tr>
@@ -498,8 +557,16 @@ export default function ParticipantesPage() {
               filtered.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-g5 last:border-0 hover:bg-bg/50 transition"
+                  className={`border-b border-g5 last:border-0 hover:bg-bg/50 transition ${selected.has(p.id) ? "bg-amber-50/50" : ""}`}
                 >
+                  <td className="px-3 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                      className="w-4 h-4 accent-[#2D2B29]"
+                    />
+                  </td>
                   <td className="px-5 py-3">
                     <p className="text-sm text-dark">
                       {p.name}
@@ -524,12 +591,20 @@ export default function ParticipantesPage() {
                     {new Date(p.created_at).toLocaleDateString("pt-BR")}
                   </td>
                   <td className="px-5 py-3">
-                    <button
-                      onClick={() => setEditing(p)}
-                      className="text-xs text-g3 hover:text-dark underline transition"
-                    >
-                      Editar
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditing(p)}
+                        className="text-xs text-g3 hover:text-dark underline transition"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => deleteOne(p.id)}
+                        className="text-xs text-red-500 hover:text-red-700 underline transition"
+                      >
+                        Excluir
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
